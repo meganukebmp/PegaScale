@@ -37,8 +37,10 @@ void IndexController::asyncHandleHttpRequest(const HttpRequestPtr &req, std::fun
 
     std::vector<exploitscript_t> items;
     for (int i=0;i<sizeof(explotscripts)/sizeof(exploitscript_t);i++) {
-        if (explotscripts[i].maxver.major >= version.major && explotscripts[i].maxver.minor >= version.minor && explotscripts[i].maxver.patch >= version.patch &&
-            explotscripts[i].minver.major <= version.major && explotscripts[i].minver.minor <= version.minor && explotscripts[i].minver.patch <= version.patch) {
+        int minver = explotscripts[i].minver.major * 100 + explotscripts[i].minver.minor * 10 + explotscripts[i].minver.patch;
+        int maxver = explotscripts[i].maxver.major * 100 + explotscripts[i].maxver.minor * 10 + explotscripts[i].maxver.patch;
+        int curver = version.major * 100 + version.minor * 10 + version.patch;
+        if (minver <= curver && maxver >= curver) {
             items.push_back(explotscripts[i]);
         }
     }
