@@ -2,6 +2,7 @@
 #include <fstream>
 #include <IndexController.h>
 #include <UserAgent.h>
+#include <ExploitScripts.h>
 
 bool replaceAllInString(std::string &original, std::string tobereplaced, std::string replacement) {
     if(tobereplaced.empty())
@@ -17,35 +18,37 @@ bool replaceAllInString(std::string &original, std::string tobereplaced, std::st
 }
 
 void IndexController::asyncHandleHttpRequest(const HttpRequestPtr &req, std::function<void (const HttpResponsePtr &)> &&callback) {
-    auto resp=HttpResponse::newHttpResponse();
-    resp->setStatusCode(k200OK);
-    resp->setContentTypeCode(CT_TEXT_HTML);
 
     // Match Nintendo useragent
     std::string useragent = req->getHeader("user-agent");
     switchfwversion_t version = getFWVersion(useragent);
 
     if (version.major > 6 && version.minor > 0 && version.patch > 0) {
-        resp->setBody("UNSUPPORTED");
-        callback(resp);
-        return;
+        // resp->setBody("UNSUPPORTED");
+        // callback(resp);
+        // return;
     }
 
-    std::ostringstream buf;
-    std::ifstream input("www/index.html");
-    buf << input.rdbuf();
-
-    std::string body = buf.str();
-    replaceAllInString(body, "$$$VERSION", getFWVersionString(version));
-    if (version.major >= 5) {
-        replaceAllInString(body, "$$$WARNING", "");
-    }
-    else {
-        replaceAllInString(body, "$$$WARNING", "<td><p style=\"font-size:15px;\"><b>The spinner will freeze on firmwares 4.0.0 - 4.1.0, you should wait approximately 20-45 seconds for the exploit to run.</b></p></td>");
+    HttpViewData data;
+    data.insert("version", getFWVersionString(version));
+    if (version.major == 4) {
+        data.insert("warning", "The spinner will freeze on firmwares 4.0.0 - 4.1.0, you should wait approximately 20-45 seconds for the exploit to run.");
     }
 
-    replaceAllInString(body, "$$$ITEMS", "<td><a href=\"#caffeine400\" onclick=\"window.scriptSelected();\"><img class=\"icon\" style=\"width:160px\" src=\"/caffeine.png\"/></a></td>");
+    std::vector<exploitscript_t> items;
+    for (int i=0;i<sizeof(explotscripts)/sizeof(exploitscript_t);i++) {
+        if (explotscripts[i].maxver.major >= version.major && explotscripts[i].maxver.minor >= version.minor && explotscripts[i].maxver.patch >= version.patch &&
+            explotscripts[i].minver.major <= version.major && explotscripts[i].minver.minor <= version.minor && explotscripts[i].minver.patch <= version.patch) {
+            items.push_back(explotscripts[i]);
+        }
+    }
 
-    resp->setBody(body);
+    data.insert("items", items);
+
+    // replaceAllInString(body, "$$$ITEMS", "<td><a href=\"#caffeine400\" onclick=\"window.scriptSelected();\"><img class=\"icon\" style=\"width:160px\" src=\"/caffeine.png\"/></a></td>");
+
+    auto resp=HttpResponse::newHttpViewResponse("IndexView.csp",data);
+    resp->setStatusCode(k200OK);
+    resp->setContentTypeCode(CT_TEXT_HTML);
     callback(resp);
 }
