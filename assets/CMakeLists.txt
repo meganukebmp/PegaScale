@@ -4,6 +4,7 @@ add_custom_target(GenAssets DEPENDS generate_bundlejs)
 
 add_custom_target(npmtarget)
 add_custom_command(
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMAND npm install ${PROJECT_SOURCE_DIR}/exploit/
     TARGET npmtarget
 )
