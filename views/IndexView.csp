@@ -104,7 +104,7 @@
       }
     </style>
   </head>
-  <body background="/bg.png" style="width:1280px;height:648px;background-color:#5B89AD">
+  <body style="width:1280px;height:648px;background-color:#000000">
   
   <table id="launch_options" align="center">
     <tr>
@@ -139,7 +139,7 @@
     </tr>
   </table>
 
-  <p id="footer">based on pegaswitch by reswitched | background art by bernv3<br>detected firmware [[ version ]]</p>
+  <p id="footer">PegaScale uses PegaSwitch Sploitcore<br>detected firmware [[ version ]]</p>
 
   <script>
     window.scriptSelected = function scriptSelected() {

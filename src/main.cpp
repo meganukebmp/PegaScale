@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-    printf("Dragons!\n");
+    printf("Running...!\n");
     //Set HTTP listener address and port
     drogon::app().addListener("0.0.0.0",80);
     drogon::app().setFileTypes({"html","js","png","jpg","jpeg","gif","bmp","nro","bin"});
